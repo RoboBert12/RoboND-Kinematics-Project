@@ -40,7 +40,7 @@ You're reading it! This file is base on the writeup that was provided by the cou
 To begin, I needed to know the zero position of the robot arm.
 ![alt_text][image1]
 
-To the kinematics of the KR210, I made a sketch of the robot's joints at there zeros position.
+For the kinematics of the KR210, I made a sketch of the robot's joints at there zeros position.
 
 ![alt text][image_sketch_1]
 
@@ -52,9 +52,9 @@ Next, I wrote down the descriptions for the a's, d's, alphas, and q's.
 
 ![alt text][image_sketch_3]
 
-Using the URDF file, I looked at the values for the dimensions of the KR210. Not that The global coordiate system was added to the last revision of the skecth. The sketch was helpful in understanding how to map a robotic arm.
+Note that I also added the global coordinate system to the skecth. The sketch was helpful in understanding how to map a robotic arm.This made it easier to interpret the URDF file. For istance to get the value of d1,I knew that I needed to add the Z components of joint 1 (0.33) and joint 2 (0.42). Using the URDF file, I looked at the values for the dimensions of the KR210.
 
-#### 2. Using the DH parameter table derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
+#### 2. Using the DH parameters derived earlier, I created the following DH parameter table
 
 Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 --- | --- | --- | --- | ---
@@ -66,6 +66,8 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 5->6 | - pi/2 | 0 | 0 | q6
 6->EE | 0 | 0 | 0.193+0.11=0.303 | 0
 
+Since we have 2 translational and 2 rotational variables for each joint, it is helpful to make a generalized homogeneous trasform.
+<HERE>
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
