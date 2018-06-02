@@ -20,6 +20,9 @@
 [image1]: ./misc_images/misc1.png
 [image2]: ./misc_images/misc3.png
 [image3]: ./misc_images/misc2.png
+[image_sketch_1]: ./misc_images/sketch1.JPG
+[image_sketch_2]: ./misc_images/sketch2.JPG
+[image_sketch_3]: ./misc_images/sketch3.JPG
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -34,21 +37,34 @@ You're reading it! This file is base on the writeup that was provided by the cou
 ### Kinematic Analysis
 #### 1. Run the forward_kinematics demo and evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot and derive its DH parameters.
 
-Here is an example of how to include an image in your writeup.
+To begin, I needed to know the zero position of the robot arm.
+![alt_text][image1]
 
-![alt text][image1]
+To the kinematics of the KR210, I made a sketch of the robot's joints at there zeros position.
 
-#### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
+![alt text][image_sketch_1]
+
+This sketch is based on the begining sketch that was presented in the lesson KR210 Forward Kinematics 1. Using this as my baseline, I added the axes of movement and numbered the links. Note that G would be rebresented as EE in the code.
+
+![alt text][image_sketch_2]
+
+Next, I wrote down the descriptions for the a's, d's, alphas, and q's.
+
+![alt text][image_sketch_3]
+
+Using the URDF file, I looked at the values for the dimensions of the KR210. Not that The global coordiate system was added to the last revision of the skecth. The sketch was helpful in understanding how to map a robotic arm.
+
+#### 2. Using the DH parameter table derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
 
 Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 --- | --- | --- | --- | ---
-0->1 | 0 | 0 | 0.75 | q1
+0->1 | 0 | 0 | 0.33+0.42 =0.75 | q1
 1->2 | - pi/2 | 0.35 | 0 | q2-pi/2
 2->3 | 0 | 1.25 | 0 | q3
-3->4 |  - pi/2 | -0.0536 | 1.50014 | q4
+3->4 |  - pi/2 | -0.054| 0.96+0.54=1.50 | q4
 4->5 | pi/2 | 0 | 0 | q5
 5->6 | - pi/2 | 0 | 0 | q6
-6->EE | 0 | 0 | 0.303 | 0
+6->EE | 0 | 0 | 0.193+0.11=0.303 | 0
 
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
