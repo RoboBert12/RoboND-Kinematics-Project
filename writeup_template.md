@@ -66,8 +66,70 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 5->6 | - pi/2 | 0 | 0 | q6
 6->EE | 0 | 0 | 0.193+0.11=0.303 | 0
 
-Since we have 2 translational and 2 rotational variables for each joint, it is helpful to make a generalized homogeneous trasform.
-<HERE>
+Since we have 2 translational and 2 rotational variables for each joint, it is helpful to make a generalized homogeneous trasform.I started with the form described in Lesson 11.12 Equations 2 and 3. To prove that the math worked, I worte a quick python script to develop the homogenous transform, see below
+
+```python
+# import modules
+import rospy
+import tf
+from mpmath import *
+from sympy import *
+
+ # Generic rotation about x
+def rotx(theta):
+    R=Matrix([[1 , 0         , 0          ],
+              [0 , cos(theta), -sin(theta)],
+              [0 , sin(theta), cos(theta) ]])
+    return R
+
+# Generic rotation about z
+def rotz(theta):
+    R=Matrix([[cos(theta), -sin(theta), 0],
+              [sin(theta), cos(theta),  0],
+              [0         ,          0,  1]])
+    return R
+    
+# Make symbols for making DH Parameter Tables
+alpha = symbols('alpha')
+a = symbols('a')
+d = symbols('d')
+q = symbols('q')
+
+# About the X-Axis
+HT1=Matrix([rotx(alpha)])
+HT1=HT1.col_insert(3,Matrix([a, 0, 0]))
+HT1=HT1.row_insert(3,Matrix([[0, 0, 0, 1]]))
+
+# About the Z-Axis
+HT2=Matrix([rotz(q)])
+HT2=HT2.col_insert(3,Matrix([0, 0, d]))
+HT2=HT2.row_insert(3,Matrix([[0, 0, 0, 1]]))
+
+#Combine X then Z
+HT=simplify(HT1*HT2)
+    
+print(HT)
+```
+
+In order to save time, in the code that I developed for the IK, I made a function that took the inputs of a, alpha, d, and q(theta). That save the time and space of making all of the trasforms individually. For each link I created the HT table. To get the overall transform, I multiplied the HT of each link together sequencially. I then multiplied by a rotation about the  Z-axis of pi and about the Y-axis of -pi/2 to correct for the wrist orientation. These steps were done prior to the look through all of the poses the maximize speed. The following is the HT table function that I used
+
+```python
+## Generic Homogeneous transform table
+def HTtable(alpha, a, d, q):
+#    table = Matrix([[            cos(q),           -sin(q),           0,             a],
+#                    [ sin(q)*cos(alpha), cos(alpha)*cos(q), -sin(alpha), -d*sin(alpha)],
+#                    [ sin(alpha)*sin(q), sin(alpha)*cos(q),  cos(alpha),  d*cos(alpha)],
+#                    [                 0,                 0,           0,             1]])
+
+    table = Matrix([[            cos(q),           -sin(q),           0,             a],
+                    [ sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+                    [ sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+                    [                 0,                 0,           0,             1]])                     
+    return table    
+```
+
+Note that the second version is the same as the first, just alligned with the example.
+
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
