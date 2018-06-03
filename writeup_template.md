@@ -23,6 +23,8 @@
 [image_sketch_1]: ./misc_images/sketch1.JPG
 [image_sketch_2]: ./misc_images/sketch2.JPG
 [image_sketch_3]: ./misc_images/sketch3.JPG
+[image_sketch_4]: ./misc_images/sketch4.JPG
+[Project2Lesson15_IMG1]: ./misc_images/Project2Lesson15_IMG1.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -133,9 +135,87 @@ Note that the second version is the same as the first, just alligned with the ex
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
 
-And here's where you can draw out and show your math for the derivation of your theta angles. 
+For the inverse kinematics, we know that the is a spherical wrist. This simplifies things into two tasks. The first task is to find the theta angles for joints 1-3 to place the wrist in the correct location. The second task is determining the proper theta angles for joints 4-6 to orient the wrist correctly.
 
-![alt text][image2]
+In order to calculate the end-effector's rotation matrix, I applied the composite rotations and correction matricies. Then I corrected for the offset in d7.
+
+```python
+# Rotation matrix for end-effector
+            Rot_EE= rotz(yaw) * roty(pitch) * rotx(roll) * rotGripCorrection
+            
+          
+            # Find the Wrist location (end-effector - the offset caused by d7)       
+            w_x = px - 0.303 * Rot_EE[0,2]
+            w_y = py - 0.303 * Rot_EE[1,2]
+            w_z = pz - 0.303 * Rot_EE[2,2]
+```
+
+Now I could slove for thetas 1-3. Thata 1 was the eaisest. Since it is a rotation about the Z-axis, the arctangent of w_x and w_y can be used.
+![alt_text][sketch4]
+
+```python
+            # Calculate joint angles using Geometric IK method #
+            # Start with theta1 = atan2(w_y, w_x)
+            theta1= atan2(w_y , w_x)   
+```
+Theata 2 and 3 are trickier. The following drawing from the lesson (Project 2 Lesson 15)is a good visualization of those angle.
+
+![alt_text][Project2Lesson15_IMG1]
+
+This meant using the law of cosines to solve for the angles, after calculating the sides.
+
+```python
+# now use law of cosines to get theta 2 and 3. Figure provided in
+            # lesson
+            
+            # Note that this is being solved in the gloabal YZ plane. 
+            # Imagine a cordinate system at joint 1 that rotates by theta1.
+            # The YZ plane of this coordinate system will contain links 2 and 3.
+            # As joint 1 rotates, the z value of the line from 2 to the wrist 
+            # will be the same but the Y value(global) will be sqrt(X^2+Y^2). 
+            
+                
+            # define sides (lowercase a, b, c)
+            #length from 3 to wrist
+            a = 1.5
+            
+            # We know the wrist distance, and that the Y component is made up 
+            # of sqrt(w_x^2 + w_y^2). Don't forget to correct by the Z and Y
+            # components from point 2
+            b = sqrt(pow((sqrt(w_x**2 + w_y**2) - .35),2) + pow((w_z -.75),2))
+            
+            #length from 2 to 3
+            c = 1.25
+            
+            # Calc angles (uppercase A, B, C)
+            A=acos((-pow(a,2) + pow(b,2) + pow(c,2))/(2*b*c))            
+            B=acos(( pow(a,2) - pow(b,2) + pow(c,2))/(2*a*c))
+            #C not needed
+#           C=acos(( pow(a,2) + pow(b,2) - pow(c,2))/(2*a*b))
+            
+            # Determine theta2 and theta3
+            theta2 = pi / 2 - A - atan2(w_z - 0.75, sqrt(w_x**2 + w_y**2) -0.35)
+            theta3 = pi /2 - (B + 0.036)
+```
+
+With the first 3 theta's solved, it was now time to calculate theta 4-6. These are the Euler angles of the end-effector.
+The most significant upgrade to this section of code was using the transpose instead of the inverse. This made the code much faster and reliable. That fact was mentioned on slack.
+
+```python
+# Calc Euler angles
+            R0_3 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]            
+            R0_3 = R0_3.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+            
+            # R3_6 = R0_3.inv("LU") * Rot_EE
+            
+            # Slack notes that you can use the traspose since it is the inverse
+            # Much faster and more reliable
+            R3_6 = R0_3.T * Rot_EE
+            
+            theta4 = atan2(R3_6[2,2], -R3_6[0,2])
+            theta5 = atan2(sqrt(R3_6[0,2]**2 + R3_6[2,2]**2),R3_6[1,2])
+            theta6 = atan2(-R3_6[1,1], R3_6[1,0])
+'''
 
 ### Project Implementation
 
