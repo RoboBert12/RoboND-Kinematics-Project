@@ -25,6 +25,8 @@
 [image_sketch_3]: ./misc_images/sketch3.JPG
 [image_sketch_4]: ./misc_images/sketch4.JPG
 [Project2Lesson15_IMG1]: ./misc_images/Project2Lesson15_IMG1.png
+[Pick]: ./misc_images/Pick.png
+[Place]: ./misc_images/Place.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -219,13 +221,14 @@ The most significant upgrade to this section of code was using the transpose ins
 
 ### Project Implementation
 
-#### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results. 
+#### 1. My version of the `IK_server.py` can be found at my [here](https://github.com/RoboBert12/RoboND-Kinematics-Project/blob/master/kuka_arm/scripts/IK_server.py). Please note that aside from the writeup, I only edited the IK_server.py. I did not use the git commits as well as I should have.
 
+I used it to pick up 9 of 9 targets. Below is a picture of the first pick and placement.
 
-Here I'll talk about the code, what techniques I used, what worked and why, where the implementation might fail and how I might improve it if I were going to pursue this project further.  
+![alt text][Pick]
+![alt text][Place]
 
+Overall the code was not very diffucult to write, with the biggest challange being the substitution of the transpose for the inverse. This caused the code to be much quicker and the wrist to not change orientation by almost a full revolution frequently. This, and moving redundant operations in front of the loop, helped speed up the code a lot. The code that I implemented followed what was discussed in the lessons and was explained above.
 
-And just for fun, another example image:
-![alt text][image3]
-
+The two areas that were missing from the lecture that would have nice as an apendix was the setup of the RViz and Gazebo simulator from scratch and the pose planner. This would help to set up future projects and robots, including custom ones.
 
