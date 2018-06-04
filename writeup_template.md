@@ -151,7 +151,7 @@ In order to calculate the end-effector's rotation matrix, I applied the composit
 ```
 
 Now I could slove for thetas 1-3. Thata 1 was the eaisest. Since it is a rotation about the Z-axis, the arctangent of w_x and w_y can be used.
-![alt_text][sketch4]
+![alt_text][image_sketch_4]
 
 ```python
             # Calculate joint angles using Geometric IK method #
